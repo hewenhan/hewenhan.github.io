@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>倒计时</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css"/>
+        <link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css"/>
+        <script src="js/jquery.min.js" type="text/javascript"></script>
+        <script src="js/jquery-ui.min.js" type="text/javascript"></script>
+        <link href="css/bootstrap-combined.min.css" rel="stylesheet" type="text/css"/>
+        <script src="js/bootstrap.js" type="text/javascript"></script>
+        <style>
+            body{
+            }
+            .hidden{
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <audio id='ok' src='OKEY.WAV' controls="controls" style='display:none'></audio>
+        <audio id='click' src='SND061.WAV' controls="controls" style='display:none'></audio>
+        <audio id='clock' src='clock.mp3' controls="controls" style='display:none'></audio>
+        <div class="container-fluid" id="LG">
+            <div class="row-fluid">
+                <div class="span12">
+                    <p id="time" style="margin-top: 200px;font-size:180px;height:180px;line-height: 180px;text-align: center;">
+                        00:00:00:000
+                    </p>
+                    <div id='controller' style='max-width:250px;margin:0 auto'>
+                        <form AUTOCOMPLETE="OFF">
+                            <fieldset>
+                                <legend>
+                                    同步率倒计时
+                                </legend>
+                                <label>
+                                    输入倒计时秒数
+                                </label>
+                                <input type="text" id="secInput" />
+                                <span class="help-block">
+                                    例如填写“10”，就是10秒倒计时，三分钟填写180
+                                </span>
+                                <button type="button" class="btn" onclick="createTime()">
+                                    提交
+                                </button>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class='countBtn' style='max-width:250px;margin:0 auto'>
+                        <button class="btn start" type="button" onclick="loop()">
+                            开始
+                        </button>
+                        <button class="btn stop" type="button" onclick="pause()">
+                            暂停
+                        </button>
+                        <button class="btn stop" type="button" onclick="stop()">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.getElementsByTagName('form')[0].onkeydown = function (e) {
+                var e = e || event;
+                var keyNum = e.which || e.keyCode;
+                if (keyNum == 13) {
+                    createTime();
+                    return false;
+                } else {
+                    return true;
+                }
+            };
+            var config = {
+                timing: 180,
+                on: 34
+            };
+            var ok = document.getElementById('ok');
+            var click = document.getElementById('click');
+            var clock = document.getElementById('clock');
+            var temp = config.timing;
+            var tms = temp * 1000;
+            var set;
+            var countMinus = function () {
+                tms = tms - config.on;
+                if (tms <= 0) {
+                    tms = 0;
+                    rander();
+                    clock.pause();
+                    ok.play();
+                    alert('时间到');
+                    return;
+                }
+                rander();
+                loop();
+            };
+            var loop = function () {
+                $('#controller').hide();
+                clock.play();
+                set = setTimeout(countMinus, config.on);
+            };
+            var createTime = function () {
+                config.timing = document.getElementById('secInput').value;
+                if (config.timing == 0) {
+                    config.timing = 180;
+                }
+                temp = config.timing;
+                tms = temp * 1000;
+                rander();
+                click.play();
+            };
+            var rander = function () {
+                var t = new Date(tms);
+                var h = '00';
+                var m = t.getMinutes();
+                if (m < 10) {
+                    m = '0' + m;
+                }
+                var s = t.getSeconds();
+                if (s < 10) {
+                    s = '0' + s;
+                }
+                var ms = t.getMilliseconds();
+                if (ms < 10) {
+                    ms = '00' + ms;
+                } else if (ms < 100) {
+                    ms = '0' + ms;
+                }
+                var str = h + ':' + m + ':' + s + ':' + ms;
+                document.getElementById('time').innerHTML = str;
+            };
+            var pause = function () {
+                clearTimeout(set);
+                clock.pause();
+                click.play();
+            };
+            var stop = function () {
+                clearTimeout(set);
+                $('#controller').show();
+                createTime();
+                clock.pause();
+                click.play();
+            };
+        </script>
+    </body>
+</html>
